@@ -10,6 +10,10 @@ packages = [{include = "palace_diffusion"}]
 python = "^3.10"
 python-telegram-bot = "^20.5"
 python-dotenv = "^1.0.0"
+transformers = "^4.33.0"
+torch = ">=2.0.0, !=2.0.1"
+black = "^23.7.0"
+accelerate = "^0.22.0"
 
 
 [build-system]

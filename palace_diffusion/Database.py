@@ -2,7 +2,6 @@ from os.path import isfile
 
 from Logger import LOGGER
 from pandas import DataFrame, read_csv
-from telegram import ChatPhoto
 
 
 def write_row(row: dict, chat_id: int) -> None:
@@ -22,7 +21,7 @@ def retrieve_recent_chat_history(chat_id: int) -> list[tuple[str]] | None:
 
     if isfile(database):
         df = read_csv(database)
-        chat_history_df = df[df["chat_id"] == chat_id].tail(1)
+        chat_history_df = df.tail(1)
 
         if len(chat_history_df):
             return [
@@ -33,14 +32,3 @@ def retrieve_recent_chat_history(chat_id: int) -> list[tuple[str]] | None:
             return None
     else:
         return None
-
-
-def save_image_with_description(
-    image: ChatPhoto, file_id: str, chat_id: int, description: str
-) -> None:
-    image.download(f"../data/images/{chat_id}_{file_id}_image.jpg")
-
-    with open(f"../data/images/{chat_id}_{file_id}_description.txt", "w") as f:
-        f.write(description)
-
-    LOGGER.info(f"Image {file_id} saved with description: {description}")

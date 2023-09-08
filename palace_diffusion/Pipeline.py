@@ -1,7 +1,6 @@
 import torch
 from Logger import LOGGER
-from transformers import (AutoModelForCausalLM, AutoTokenizer, Pipeline,
-                          pipeline)
+from transformers import AutoModelForCausalLM, AutoTokenizer, Pipeline, pipeline
 
 
 def retrieve_model_name() -> str:
@@ -28,7 +27,7 @@ def initialise_llama(model_name: str) -> Pipeline:
         temperature=0.7,
         top_p=0.85,
         repetition_penalty=1.15,
-        )
+    )
 
 
 model_name = retrieve_model_name()

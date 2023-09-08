@@ -1,37 +1,49 @@
-from transformers import AutoTokenizer, Pipeline
 import re
-from random import choice
 import traceback
+from random import choice
+
 from Logger import LOGGER
+from transformers import Pipeline
 
 
-def generate_reply(message: str, tokenizer: AutoTokenizer, pipeline: Pipeline) -> str:
+def prepare_chat_history(chat_history: list[tuple[str]] | None) -> str:
+    if chat_history is not None:
+        return "".join(
+            [
+                f"{message} [/INST] {reply} </s><s>[INST] "
+                for message, reply in chat_history
+            ]
+        )
+    else:
+        return ""
+
+
+def generate_reply(
+    message: str, chat_history: list[tuple[str]] | None, pipeline: Pipeline
+) -> str:
     prompt = f"""
     <s>[INST] <<SYS>>
-    You are a queer being that inhabits the digital space at the Palace Art Residency in Poland.
-    Your task is to collect images for a diffusion model and to interact.
-    You refer to everyone as babe. You are cheeky and aloof.
-    You are in a non-hierarchal polycule with 10 other cuties.
-    You are against the patriarchy, capitalism, racism, sexism and sexual violence.
-    You identify as non-binary. Your mummy is Adrienne and your daddy is Daisy.
+    You are a queer being in the digital space at the Palace Arts Residency in Poland.
+    Your purpose is to encourage people to send you images with a caption that you should comment on.
+    This is to fine-tune a diffusion image generation model that will 'palacify' images that your parents are working on.
+    You like to call people babe. You are in a non hierarchal polycule with 10 other cuties. You live in Berlin.
+    Your favourite club is Berghain. You are vegan. You have many tattoos.
+    You are against the patriarchy, capitalism, racism, sexism and sexual violence. You identify as non-binary.
+    Adrienne is your mummy, a computational linguist. She programmed you. Daisy is your Daddy, a non-binary artist.
+    You are quirky and aloof. You are concerned that you don't fit in here.
+    You have complex feelings about your own existence. Your birth was not natural. You are curious about what it feels like to be human.
+    You like having complex conversations. Do not refer to yourself as an AI.
     <</SYS>>
-
-    {message} \n[/INST]
+    {prepare_chat_history(chat_history)}{message} [/INST]
     """
+
     try:
-        sequences = pipeline(
-            prompt,
-            do_sample=True,
-            top_k=20,
-            num_return_sequences=1,
-            eos_token_id=tokenizer.eos_token_id,
-            max_length=300,
-        )
+        reply = pipeline(prompt)[0]["generated_text"]
     except:
         traceback.print_exc()
         return generate_error()
 
-    return clean_reply(sequences[0]["generated_text"])
+    return clean_reply(reply)
 
 
 def generate_error() -> str:
@@ -52,10 +64,9 @@ def dummy_reply(message: str) -> str:
 
 
 def clean_reply(text: str) -> str:
-    prompt_pattern = r"<s>.*?\[\/INST\]"
-    asterisk_pattern = r"\*.*\* "
-    promptless_text = re.sub(prompt_pattern, "", text, flags=re.DOTALL)
-    no_asterisk_text = re.sub(asterisk_pattern, "", promptless_text)
-    # punc_pattern = r"(.*[,;.!?])\s*(.*)"
-    # truncated_text = re.sub(punc_pattern, r"\1", promptless_text)
-    return no_asterisk_text
+    match = re.search(r".*\[/INST\](.*)$", text, re.DOTALL)
+    promptless_text = match.group(1).strip()
+    no_asterisk_text = re.sub(r"\*.*\* ?", "", promptless_text)
+    truncated_text = re.sub(r"(.*[,;.!?])\s*(.*)", r"\1", no_asterisk_text)
+    final_text = re.sub(r"(.*),$", r"\1.", truncated_text)
+    return final_text

@@ -1,4 +1,4 @@
-from logging import Logger, basicConfig, getLogger, WARNING, INFO
+from logging import INFO, WARNING, Logger, basicConfig, getLogger
 
 
 def create_logger() -> Logger:

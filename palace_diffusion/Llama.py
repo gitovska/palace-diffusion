@@ -58,15 +58,10 @@ def generate_error() -> str:
     return choice(errors)
 
 
-def dummy_reply(message: str) -> str:
-    LOGGER.info("Message recieved: ", message)
-    return "I'm not ready to talk yet. I'm in my image processing era."
-
-
 def clean_reply(text: str) -> str:
     match = re.search(r".*\[/INST\](.*)$", text, re.DOTALL)
     promptless_text = match.group(1).strip()
     no_asterisk_text = re.sub(r"\*.*\* ?", "", promptless_text)
-    truncated_text = re.sub(r"(.*[,;.!?])\s*(.*)", r"\1", no_asterisk_text)
+    truncated_text = re.sub(r"(.*[.!?])\s*(.*)", r"\1", no_asterisk_text)
     final_text = re.sub(r"(.*),$", r"\1.", truncated_text)
     return final_text

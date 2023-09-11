@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "palace-diffusion"
 version = "0.1.0"
-description = ""
+description = "A Telegram Bot created at the Palace Residency"
 authors = ["Adrienne Wright <ad@rienne.de>"]
 readme = "README.md"
 packages = [{include = "palace_diffusion"}]
